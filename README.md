@@ -159,10 +159,10 @@ This project is part of a physiological analytics series applying medical scienc
 
 | Project | Topic |
 |---------|-------|
-| P1 | Driver Physiological Load Estimator — G-force → neuromuscular fatigue |
-| **P2** | **Cardiovascular Demand Estimator — G-force → cardiac load** ← this project |
+| P6 | Driver Physiological Load Estimator — G-force → neuromuscular fatigue |
+| **P7** | **Cardiovascular Demand Estimator — G-force → cardiac load** ← this project |
 
-**P1 → P2 connection:** P1 established that Monaco's neuromuscular demand is driven by braking *frequency*, not peak G magnitude. P7 confirms the same principle from a cardiovascular perspective — Monaco's low top speed means low G-forces, which means the cardiovascular system is never significantly stressed despite the driver being continuously busy. The two projects together show that Monaco places high demands on two different physiological systems via two different mechanisms, and that these can only be distinguished when medical framing is applied to the data.
+**P6 → P7 connection:** P6 established that Monaco's neuromuscular demand is driven by braking *frequency*, not peak G magnitude. P7 confirms the same principle from a cardiovascular perspective — Monaco's low top speed means low G-forces, which means the cardiovascular system is never significantly stressed despite the driver being continuously busy. The two projects together show that Monaco places high demands on two different physiological systems via two different mechanisms, and that these can only be distinguished when medical framing is applied to the data.
 
 ---
 
