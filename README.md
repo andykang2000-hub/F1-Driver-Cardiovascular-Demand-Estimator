@@ -1,14 +1,13 @@
-# P7 — F1 Driver Cardiovascular Demand Estimator
+# F1 Driver Cardiovascular Demand Estimator
 
-Part of a medical-meets-motorsport analytics portfolio targeting sports science and driver performance roles in F1.
 
 ---
 
 ## Overview
 
-Derives a cardiovascular demand profile for an F1 driver from raw telemetry, using a two-component HR proxy model grounded in peer-reviewed physiology. **No wearable data required** — pure physics-to-physiology translation.
+Derives a cardiovascular demand profile for an F1 driver from raw telemetry, using a two-component HR proxy model grounded in peer-reviewed physiology. **No wearable data required** — we use physics-to-physiology translation instead.
 
-The central question this project asks: *how hard is this working the driver's heart?* — a question engineers cannot answer from telemetry alone, but a sports scientist can.
+The central question this project asks: *how hard is this working the driver's heart?* — a question one cannot answer from telemetry alone, but only when we combine informations from both telemetry and human physiology.
 
 **Driver:** VER · **Season:** 2023 · **Circuits:** Suzuka, Silverstone, Monaco · **Session:** Race, Lap 10
 
@@ -24,9 +23,9 @@ The central question this project asks: *how hard is this working the driver's h
 | Silverstone | 164 bpm | 82% | 33.1% of lap | 40.0% | 0.83 |
 | **Monaco** | **152 bpm** | **76%** | **67.9% of lap** | **69.5%** | **0.53** |
 
-Monaco's reputation for physical brutality is real — but it is primarily a **neuromuscular** stressor (braking frequency, neck load; see P6). From a cardiovascular perspective, it is the *least* demanding of the three circuits.
+Monaco's reputation for physical brutality is real — but it is primarily a **neuromuscular** stressor (braking frequency, neck load; see my other Project "F1-Driver-Physiological-Load-Estimator"). From a cardiovascular perspective, it is the *least* demanding of the three circuits.
 
-Silverstone's sustained high-speed corners deny the heart recovery for 66.9% of the lap and drive stroke volume below 80% of baseline for 35% of the lap. The cardiovascular system compensates entirely through heart rate elevation — exactly what the Tripoli (2024) hemodynamic model predicts.
+Silverstone's sustained high-speed corners deny the heart recovery for 66.9% of the lap and drive stroke volume (SV) below 80% of baseline for 35% of the lap. The cardiovascular system compensates entirely through increasing the heart rate (HR) — exactly what the Tripoli (2024) hemodynamic model predicts.
 
 **The medical insight:** Monaco and Silverstone are stressors of different physiological systems. This distinction is invisible from lap times or engineer telemetry. It only becomes visible when medical framing is applied to the data.
 
@@ -48,7 +47,6 @@ HR_total(t) = 74% × HRmax  +  24 bpm/g × max(0, G(t) − 1.0)
 | Parameter | Value | Source |
 |-----------|-------|--------|
 | HRmax | 200 bpm | Tornaghi et al. 2023 (F1-specific, lab-measured incremental test) |
-| Resting HR | 55 bpm | Elite team-sport athlete literature |
 | In-race HR baseline | 74% HRmax = 148 bpm | Tornaghi et al. 2023 (sustained race lower bound) |
 | HR–G slope | +24 bpm/g above 1g | Tripoli et al. 2024 (multiscale hemodynamic model) |
 | G-LOC threshold | 4.5 Gz | Blomqvist & Stone 1983 (conservative lower bound) |
@@ -56,11 +54,11 @@ HR_total(t) = 74% × HRmax  +  24 bpm/g × max(0, G(t) − 1.0)
 
 ### Component 1 — Exertion floor (74% HRmax)
 
-Tornaghi et al. (2023) measured a single F1 driver during the 2013 Melbourne GP. During the race (53–143 min of recording), HR was sustained between 148–163 bpm (74–82% HRmax) even on straights. This floor represents the cardiovascular cost of race-pace driving — exertion, thermal load (~50°C cockpit), and cognitive demand — independent of G-force.
+Tornaghi et al. (2023) measured a single F1 driver (24 years old, 3 years F1 experience) during the 2011 Australian GP at Albert Park, Melbourne — conditions were partly sunny, 16–18°C ambient. HR was recorded continuously from 45 minutes before the race to 30 minutes after, using a Polar beat-to-beat HR belt. During the race (approximately 100 minutes), HR was sustained between 148–163 bpm (74–82% HRmax) even during lower-intensity phases. This floor represents the cardiovascular cost of race-pace driving — sustained physical effort, psychological stress, and cognitive demand — independent of G-force. Note that the mild ambient conditions at Melbourne (16–18°C) mean this baseline is likely conservative; hotter circuits such as Bahrain or Singapore would be expected to elevate this floor further through thermoregulatory demand.
 
 ### Component 2 — G-force increment (Tripoli slope)
 
-Tripoli et al. (2024) modelled the acute cardiovascular response to hypergravity (1g → 2.5g) using a validated multiscale 0D-1D hemodynamic model. HR increases linearly from ~77 bpm at 1g to ~113 bpm at 2.5g (+36 bpm over +1.5g = **24 bpm/g**). The model also predicts stroke volume depression of −33.4% at 2.5g vs 1g baseline.
+Tripoli et al. (2024) modelled the acute cardiovascular response to hypergravity (1g → 2.5g) using a validated multiscale 0D-1D hemodynamic model. HR increases linearly from ~77 bpm at 1g to ~113 bpm at 2.5g (+36 bpm over +1.5g = **24 bpm/g**). The model also predicts stroke volume depression of −33.4% at 2.5g vs 1g baseline. The Tripoli slope (24 bpm/g) is applied to the G-force increment above 1g. The absolute HR baseline in Tripoli's model (77 bpm, resting seated subject) is not used — it is replaced by Tornaghi's in-race floor (148 bpm), which reflects the actual cardiovascular state of a driver at race pace.
 
 ### Cross-validation
 
@@ -75,7 +73,7 @@ All outputs validated against Tornaghi's independent observations.
 
 ### G-LOC threshold note
 
-The 4.5 Gz threshold (Blomqvist & Stone 1983) applies to relaxed, untrained subjects. Conditioned F1 drivers with neck musculature adaptations likely tolerate higher values. No peer-reviewed motorsport-specific G-LOC threshold exists. This model therefore treats 4.5 Gz as a **conservative lower bound**, flagging proximity rather than predicting loss of consciousness. Transparent documentation of this limitation is a modeling strength.
+The 4.5 Gz threshold (Blomqvist & Stone 1983) applies to relaxed, untrained subjects. Conditioned F1 drivers with neck musculature adaptations likely tolerate higher values. No peer-reviewed motorsport-specific G-LOC threshold exists. This model therefore treats 4.5 Gz as a **conservative lower bound**, flagging proximity rather than predicting loss of consciousness.
 
 ### Model limitation
 
@@ -105,6 +103,16 @@ Per circuit:
 - HR trace with cardiac recovery windows highlighted in green
 - Stroke volume depression timeline with −20% and −30% reference lines
 
+## Results
+
+### Module 1 — Lap Cardiovascular Arc (Suzuka, VER Lap 10)
+![Module 1](outputs/p7_module1_lap_cv_arc.png)
+
+### Module 2 — Circuit Comparison
+![Module 2](outputs/p7_module2_circuit_comparison.png)
+
+### Module 3 — G-LOC Proximity & Recovery Analysis
+![Module 3](outputs/p7_module3_gloc_recovery.png)
 ---
 
 ## Data Pipeline
@@ -145,20 +153,16 @@ scipy>=1.9.0
 
 ---
 
-## Portfolio Context
+## Context
 
 This project is part of a physiological analytics series applying medical science to F1 telemetry:
 
 | Project | Topic |
 |---------|-------|
-| P6 | Driver Physiological Load Estimator — G-force → neuromuscular fatigue |
-| **P7** | **Cardiovascular Demand Estimator — G-force → cardiac load** ← this project |
-| P8 | Environmental Stress Modeler — heat + humidity → thermoregulatory load (planned) |
-| P9 | Cognitive Load Analyzer — steering micro-corrections → attentional fatigue (planned) |
-| P10 | Systemic Degradation Model (planned) |
-| P11 | Clinical Risk Synthesis Tool (planned) |
+| P1 | Driver Physiological Load Estimator — G-force → neuromuscular fatigue |
+| **P2** | **Cardiovascular Demand Estimator — G-force → cardiac load** ← this project |
 
-**P6 → P7 connection:** P6 established that Monaco's neuromuscular demand is driven by braking *frequency*, not peak G magnitude. P7 confirms the same principle from a cardiovascular perspective — Monaco's low top speed means low G-forces, which means the cardiovascular system is never significantly stressed despite the driver being continuously busy. The two projects together show that Monaco places high demands on two different physiological systems via two different mechanisms, and that these can only be distinguished when medical framing is applied to the data.
+**P1 → P2 connection:** P1 established that Monaco's neuromuscular demand is driven by braking *frequency*, not peak G magnitude. P7 confirms the same principle from a cardiovascular perspective — Monaco's low top speed means low G-forces, which means the cardiovascular system is never significantly stressed despite the driver being continuously busy. The two projects together show that Monaco places high demands on two different physiological systems via two different mechanisms, and that these can only be distinguished when medical framing is applied to the data.
 
 ---
 
