@@ -17,7 +17,7 @@ The central question this project asks: *how hard is this working the driver's h
 
 ### Silverstone is the hardest cardiovascular circuit — not Monaco
 
-| Circuit | Mean HR | %HRmax | Recovery time | Min SV | Peak G-LOC proximity |
+| Circuit | Mean HR | %HRmax | Recovery time | Min SV | Peak Hemodynamic Stress proximity |
 |---------|---------|--------|---------------|--------|----------------------|
 | Suzuka | 163 bpm | 82% | 37.7% of lap | 46.4% | 0.76 |
 | Silverstone | 164 bpm | 82% | 33.1% of lap | 40.0% | 0.83 |
@@ -49,8 +49,10 @@ HR_total(t) = 74% × HRmax  +  24 bpm/g × max(0, G(t) − 1.0)
 | HRmax | 200 bpm | Tornaghi et al. 2023 (F1-specific, lab-measured incremental test) |
 | In-race HR baseline | 74% HRmax = 148 bpm | Tornaghi et al. 2023 (sustained race lower bound) |
 | HR–G slope | +24 bpm/g above 1g | Tripoli et al. 2024 (multiscale hemodynamic model) |
-| G-LOC threshold | 4.5 Gz | Blomqvist & Stone 1983 (conservative lower bound) |
+| Hemodynamic stress reference | 4.5 Gz | Blomqvist & Stone 1983 (conservative lower bound) |
 | SV depression | −33.4% at 2.5g vs 1g | Tripoli et al. 2024 |
+
+* Blomqvist & Stone 1983 threshold applies to +Gz only. In F1's near-horizontal operating plane, dominant forces are Gy (lateral) and Gx (longitudinal). G_total is used here as a proxy for total mechanical cardiovascular stress, not as a G-LOC predictor.
 
 ### Component 1 — Exertion floor (74% HRmax)
 
@@ -74,6 +76,7 @@ All outputs validated against Tornaghi's independent observations.
 ### G-LOC threshold note
 
 The 4.5 Gz threshold (Blomqvist & Stone 1983) applies to relaxed, untrained subjects. Conditioned F1 drivers with neck musculature adaptations likely tolerate higher values. No peer-reviewed motorsport-specific G-LOC threshold exists. This model therefore treats 4.5 Gz as a **conservative lower bound**, flagging proximity rather than predicting loss of consciousness.
+G-LOC requires sustained +Gz (head-to-foot) which is rare in F1's horizontal plane. The 4.5g reference is retained as a mechanical stress benchmark, not a consciousness-loss predictor. Lateral G (Gy) at Copse Corner imposes extreme cervical load but negligible G-LOC risk.
 
 ### Model limitation
 
@@ -97,9 +100,9 @@ Suzuka vs Silverstone vs Monaco:
 - HR proxy curves overlaid on normalised lap %
 - Grouped bar chart: mean HR, peak HR, %HRmax, time above 82% HRmax, mean G-total, max SV depression, mean CO index
 
-### Module 3 — G-LOC Proximity & Recovery Analysis
+### Module 3 — Hemodynamic Stress Index & Recovery Analysis
 Per circuit:
-- G-LOC proximity heatmap (green/orange/red zones)
+- Hemodynamic stress index heatmap (green/orange/red zones)
 - HR trace with cardiac recovery windows highlighted in green
 - Stroke volume depression timeline with −20% and −30% reference lines
 
@@ -111,7 +114,7 @@ Per circuit:
 ### Module 2 — Circuit Comparison
 ![Module 2](outputs/p7_module2_circuit_comparison.png)
 
-### Module 3 — G-LOC Proximity & Recovery Analysis
+### Module 3 — Hemodynamic Stress Index & Recovery Analysis
 ![Module 3](outputs/p7_module3_gloc_recovery.png)
 ---
 
