@@ -36,7 +36,7 @@ Silverstone's sustained high-speed corners deny the heart recovery for 66.9% of 
 ### Model Architecture
 
 ```
-HR_total(t) = 74% × HRmax  +  24 bpm/g × max(0, G(t) − 1.0)
+HR_total(t) = min(HRmax,  74%×HRmax + 24 bpm/g × max(0, G(t) − 1.0))
               ──────────────   ──────────────────────────────
               Exertion floor   G-force increment
               Tornaghi 2023    Tripoli 2024
@@ -72,6 +72,7 @@ Tripoli et al. (2024) modelled the acute cardiovascular response to hypergravity
 | 3.5g (extreme corner) | 200 bpm | 100% | ✓ qualifying peaks |
 
 All outputs validated against Tornaghi's independent observations.
+Values at 3.5g and 4.5g are capped at HRmax (200 bpm). Uncapped formula would yield 208 bpm and 232 bpm respectively. The values are physiologically unlikely, hence we implement the cap.
 
 ### G-LOC threshold note
 
