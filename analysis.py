@@ -36,7 +36,6 @@ os.makedirs('outputs', exist_ok=True)
 # ── Section 1: Configuration & Physiological Constants ────────────────────────
 
 # Physiological parameters — all sourced from peer-reviewed literature
-HR_REST    = 55     # bpm — elite team-sport athlete literature
 HR_MAX     = 200    # bpm — Tornaghi et al. 2023 (F1-specific, lab-measured)
 GLOC_THRESHOLD = 4.5  # Gz — Blomqvist & Stone 1983 (relaxed subjects,
                        #      conservative lower bound; trained drivers likely
@@ -51,7 +50,11 @@ TRIPOLI_SLOPE = 24.0   # bpm per g above 1g
 
 # Tornaghi et al. 2023: sustained in-race HR lower bound = 74% HRmax.
 # This represents the cardiovascular floor of race-pace driving — exertion,
-# thermal load (~50°C cockpit), cognitive demand — even on low-G straights.
+# thermal load, cognitive demand — even at low G (Tornaghi 2023).
+# Note: Tornaghi 2023 data from Melbourne (16–18°C ambient) — a conservative baseline.
+# Hotter circuits (Bahrain, Singapore) would elevate this floor further.
+
+
 HR_EXERTION_BASE_PCT = 0.74
 HR_EXERTION_BASE     = HR_EXERTION_BASE_PCT * HR_MAX   # 148 bpm
 
@@ -89,7 +92,7 @@ CIRCUITS = {
 
 print("✅ Configuration loaded")
 print(f"   HR_REST={HR_REST} bpm | HR_MAX={HR_MAX} bpm | "
-      f"G-LOC={GLOC_THRESHOLD}g | Tripoli slope={TRIPOLI_SLOPE} bpm/g")
+      f"Hemo. stress ref {GLOC_THRESHOLD}g | Tripoli slope={TRIPOLI_SLOPE} bpm/g")
 print(f"   Exertion base={HR_EXERTION_BASE:.0f} bpm "
       f"({HR_EXERTION_BASE_PCT*100:.0f}% HRmax, Tornaghi 2023)")
 
@@ -472,7 +475,7 @@ def plot_module1(cv_df, lap_num=10, circuit='Suzuka',
     ax_g.plot(t, g, color=DARK, linewidth=1.6, label='G_total')
     ax_g.axhline(GLOC_THRESHOLD, color='#dc2626', linewidth=0.9,
                  linestyle='--', alpha=0.7,
-                 label=f'G-LOC {GLOC_THRESHOLD}g')
+                 label=f'Hemo. stress ref {GLOC_THRESHOLD}g')
     ax_g.fill_between(t, g, alpha=0.06, color=DARK)
 
     ax_g.set_ylabel('G-force (g)', color=DARK, fontsize=8)
@@ -545,14 +548,14 @@ def plot_module1(cv_df, lap_num=10, circuit='Suzuka',
     fig.text(0.5, 0.918,
              f'{driver}  ·  {year} {circuit} GP  ·  Lap {lap_num}  ·  '
              f'HR model: Tripoli et al. 2024 + Tornaghi et al. 2023  ·  '
-             f'G-LOC threshold: Blomqvist & Stone 1983',
+             f'Hemodynamic stress ref: Blomqvist & Stone 1983',
              ha='center', color='#555555', fontsize=8)
 
     stats = [
         ('Peak HR',         f"{cv_df['HR_proxy'].max():.0f} bpm"),
         ('Mean HR',         f"{cv_df['HR_proxy'].mean():.0f} bpm"),
         ('Peak G',          f"{cv_df['G_total'].max():.2f} g"),
-        ('Max G-LOC prox',  f"{cv_df['hemodynamic_stress_idx'].max()*100:.0f}%"),
+        ('Max Hemo. Stress',  f"{cv_df['hemodynamic_stress_idx'].max()*100:.0f}%"),
         ('Max SV drop',     f"{(1-cv_df['SV_pct_baseline'].min())*100:.1f}%"),
         ('Time ≥82%HRmax',  f"{(cv_df['pct_HRmax']>=0.82).mean()*100:.0f}%"),
     ]
@@ -707,7 +710,7 @@ def plot_module2(circuit_data):
              'VER · 2023 Season · Lap 10 · '
              'Suzuka vs Silverstone vs Monaco  ·  '
              'HR model: Tripoli et al. 2024 + Tornaghi et al. 2023  ·  '
-             'G-LOC threshold: Blomqvist & Stone 1983',
+             'Hemodynamic stress ref: Blomqvist & Stone 1983',
              ha='center', color='#555555', fontsize=8)
 
     plt.savefig('outputs/p7_module2_circuit_comparison.png',
@@ -872,7 +875,7 @@ def plot_module3(circuit_data):
              ha='center', color=DARK, fontsize=15, fontweight='bold')
     fig.text(0.5, 0.918,
              'VER · 2023 Season · Lap 10 · '
-             'G-LOC threshold: Blomqvist & Stone 1983 '
+             'Hemodynamic stress ref: Blomqvist & Stone 1983 '
              '(4.5g, conservative lower bound)  ·  '
              'SV model: Tripoli et al. 2024  ·  '
              'HR model: Tornaghi et al. 2023 + Tripoli et al. 2024',
