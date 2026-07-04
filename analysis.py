@@ -42,6 +42,8 @@ GLOC_THRESHOLD = 4.5  # Gz — Blomqvist & Stone 1983 (relaxed subjects,
                        #      conservative lower bound; trained drivers likely
                        #      tolerate higher — no motorsport-specific threshold
                        #      exists in peer-reviewed literature)
+                      # *Note: It is a mechanical stress reference, not a true G-Loc threshold
+
 
 # Tripoli et al. 2024: HR increases linearly from ~77 bpm at 1g → ~113 bpm
 # at 2.5g for a seated subject. Slope = +36 bpm over +1.5g = 24 bpm/g.
@@ -297,8 +299,8 @@ def compute_hr_proxy(g_df):
         return 'Maximal'
     df['zone'] = df['pct_HRmax'].apply(assign_zone)
 
-    # G-LOC proximity (0 = safe, 1 = at Blomqvist threshold)
-    df['gloc_proximity'] = (df['G_total'] / GLOC_THRESHOLD).clip(0, 1)
+    # Hemodynamic Stress Index (0 = safe, 1 = at Blomqvist threshold)
+    df['hemodynamic_stress_idx'] = (df['G_total'] / GLOC_THRESHOLD).clip(0, 1)
 
     # Stroke volume depression — Tripoli 2024: SV falls −33.4% over 1g→2.5g
     df['SV_pct_baseline'] = (1.0 - 0.334
@@ -550,7 +552,7 @@ def plot_module1(cv_df, lap_num=10, circuit='Suzuka',
         ('Peak HR',         f"{cv_df['HR_proxy'].max():.0f} bpm"),
         ('Mean HR',         f"{cv_df['HR_proxy'].mean():.0f} bpm"),
         ('Peak G',          f"{cv_df['G_total'].max():.2f} g"),
-        ('Max G-LOC prox',  f"{cv_df['gloc_proximity'].max()*100:.0f}%"),
+        ('Max G-LOC prox',  f"{cv_df['hemodynamic_stress_idx'].max()*100:.0f}%"),
         ('Max SV drop',     f"{(1-cv_df['SV_pct_baseline'].min())*100:.1f}%"),
         ('Time ≥82%HRmax',  f"{(cv_df['pct_HRmax']>=0.82).mean()*100:.0f}%"),
     ]
@@ -714,12 +716,12 @@ def plot_module2(circuit_data):
     print("✅ Saved → outputs/p7_module2_circuit_comparison.png")
 
 
-# ── Section 8: Module 3 — G-LOC Proximity & Recovery Analysis ─────────────────
+# ── Section 8: Module 3 — Hemodynamic Stress Index & Recovery Analysis ─────────────────
 
 def plot_module3(circuit_data):
     """
     Per-circuit physiological risk analysis:
-      - Row 0: G-LOC proximity heatmap (colored by danger zone)
+      - Row 0: Hemodynamic Stress Index heatmap (colored by danger zone)
       - Row 1: HR trace with cardiac recovery windows highlighted
       - Row 2: Stroke volume depression timeline
     """
@@ -740,11 +742,11 @@ def plot_module3(circuit_data):
         color = d['color']
         t     = cv['t'].values
         t_norm = (t - t[0]) / (t[-1] - t[0]) * 100
-        gloc  = cv['gloc_proximity'].values
+        gloc  = cv['hemodynamic_stress_idx'].values
         hr    = cv['HR_proxy'].values
         sv    = cv['SV_pct_baseline'].values * 100
 
-        # ── Row 0: G-LOC proximity ────────────────────────────────────────────
+        # ── Row 0: Hemodynamic Stress Index ────────────────────────────────────────────
         ax0 = fig.add_subplot(gs[0, col])
         ax0.set_facecolor(BG)
         for sp in ax0.spines.values():
@@ -768,7 +770,7 @@ def plot_module3(circuit_data):
 
         ax0.set_xlim(0, 100)
         ax0.set_ylim(0, 1.15)
-        ax0.set_ylabel('G-LOC proximity\n(0=safe, 1=threshold)',
+        ax0.set_ylabel('Hemodynamic Stress Index\n(0=safe, 1=threshold)',
                        color=DARK, fontsize=7)
         ax0.set_title(f'{name}', color=DARK,
                       fontsize=10, fontweight='bold')
@@ -866,7 +868,7 @@ def plot_module3(circuit_data):
 
     # ── Header & key finding ──────────────────────────────────────────────────
     fig.text(0.5, 0.945,
-             'P7 — G-LOC Proximity & Cardiac Recovery Analysis',
+             'P7 — Hemodynamic Stress Index & Cardiac Recovery Analysis',
              ha='center', color=DARK, fontsize=15, fontweight='bold')
     fig.text(0.5, 0.918,
              'VER · 2023 Season · Lap 10 · '
@@ -920,8 +922,8 @@ if __name__ == '__main__':
     print("\n── Module 2: Circuit Comparison ──")
     plot_module2(circuit_data)
 
-    # Module 3 — G-LOC proximity & recovery
-    print("\n── Module 3: G-LOC Proximity & Recovery ──")
+    # Module 3 — Hemodynamic Stress Index & recovery
+    print("\n── Module 3: Hemodynamic Stress Index & Recovery ──")
     plot_module3(circuit_data)
 
     # Summary findings
